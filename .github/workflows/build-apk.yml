@@ -1,4 +1,3 @@
-
 name: Build NICHE LAB APK
 
 on:
@@ -30,10 +29,31 @@ jobs:
         with:
           gradle-version: '8.9'
 
-      - name: Extract and build
+      - name: Extract, fix launcher icon and build
         run: |
           unzip -q NICHE_LAB_ANDROID_PROJECT.zip -d extracted
           unzip -oq NICHE_LAB_ICON_UPDATE.zip -d extracted/niche-lab-android
+
+          python3 - <<'PY'
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+
+          manifest = Path("extracted/niche-lab-android/app/src/main/AndroidManifest.xml")
+          tree = ET.parse(manifest)
+          root = tree.getroot()
+          android = "{http://schemas.android.com/apk/res/android}"
+          application = root.find("application")
+
+          if application is None:
+              raise SystemExit("AndroidManifest.xml has no application element")
+
+          application.set(android + "icon", "@mipmap/ic_launcher")
+          application.set(android + "roundIcon", "@mipmap/ic_launcher_round")
+          tree.write(manifest, encoding="utf-8", xml_declaration=True)
+          print("NICHE LAB launcher icon references configured.")
+
+          PY
+
           cd extracted/niche-lab-android
           gradle assembleDebug
 
