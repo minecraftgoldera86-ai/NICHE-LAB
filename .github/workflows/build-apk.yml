@@ -1,0 +1,42 @@
+
+name: Build NICHE LAB APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download project
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Android
+        uses: android-actions/setup-android@v3
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Extract and build
+        run: |
+          unzip -q NICHE_LAB_ANDROID_PROJECT.zip -d extracted
+          cd extracted/niche-lab-android
+          gradle assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: niche-lab-debug-apk
+          path: extracted/niche-lab-android/app/build/outputs/apk/debug/app-debug.apk
+          
