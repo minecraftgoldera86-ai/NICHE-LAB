@@ -30,12 +30,13 @@ jobs:
         with:
           gradle-version: '8.9'
 
-            - name: Extract and build
+      - name: Extract and build
         run: |
           unzip -q NICHE_LAB_ANDROID_PROJECT.zip -d extracted
           unzip -oq NICHE_LAB_ICON_UPDATE.zip -d extracted/niche-lab-android
           cd extracted/niche-lab-android
           gradle assembleDebug
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
